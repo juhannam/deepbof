@@ -1,0 +1,172 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>audioread - unified Matlab audio file input function</title><meta name="generator" content="MATLAB 7.11"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2012-04-28"><meta name="DC.source" content="demo_audioread.m"><style type="text/css">
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+  background: #EEEEEE;
+  padding: 10px;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style></head><body><a href="http://www.ee.columbia.edu/~dpwe/">Dan Ellis</a> : <a href="http://www.ee.columbia.edu/~dpwe/resources/">Resources</a>: <a href="http://www.ee.columbia.edu/~dpwe/resources/matlab/">Matlab</a>: <div class="content"> <IMG SRC="audioread_thumb.png" ALIGN="LEFT" HSPACE="10"><h1>audioread - unified Matlab audio file input function</h1><!--introduction--><p><a href="audioread.m">audioread</a> provides a single, unified Matlab function for reading audio files in a range of different file formats, including wav, mp3, aac, flac, AIFF, etc.  In most cases, access is actually provided by external binaries, but this is hidden within audioread (and its subfunctions). The idea is to make your code independent of the kind of audio files used as input.</p><p>In addition, audioread provides support for common modifications performed during sound input, namely resampling (changing the sampling rate), casting multi-channel signals to mono, and loading only a limited time range of the sound.  Care has been taken to ensure that short subregions of very large soundfiles can be read with the minimum of memory overhead (for instance, without having to load in the entire soundfile at any time).</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Example usage</a></li><li><a href="#2">Writing audio files</a></li><li><a href="#3">External binaries</a></li><li><a href="#4">Installation</a></li></ul></div><h2>Example usage<a name="1"></a></h2><p>In its simplest form, audioread will load a soundfile into a vector in memory, just like wavread.  However, the same function will also read an mp3 file, or an aac file, or any other supported soundfile type:</p><pre class="codeinput"><span class="comment">% Read an audio waveform</span>
+[d,sr] = audioread(<span class="string">'piano.wav'</span>);
+<span class="comment">% Plot the spectrogram</span>
+subplot(311)
+specgram(d(:,1),1024,sr);
+<span class="comment">% Read in a different format</span>
+[d2,sr] = audioread(<span class="string">'piano.mp3'</span>);
+subplot(312)
+specgram(d2(:,1),1024,sr);
+<span class="comment">% Read with resampling, casting to mono, and time limits</span>
+forcemono = 1;
+starttime = 0.5;  <span class="comment">% seconds</span>
+duration = 1.0;
+targetsr = 16000;
+[d3,sr] = audioread(<span class="string">'piano.aac'</span>,targetsr,forcemono,starttime,duration);
+subplot(313)
+specgram(d3,512,sr);
+</pre><img vspace="5" hspace="5" src="demo_audioread_01.png" alt=""> <h2>Writing audio files<a name="2"></a></h2><p>This package also includes <a href="audiowrite.m">audiowrite</a>, a function to write out soundfiles in different formats, where the format is guessed from the provided filename extension.  This is only a quick attempt, however, since there is no provision for controlling the encoding performed by lossy formats (mp3 etc.).</p><h2>External binaries<a name="3"></a></h2><p>audioread relies on external binaries for access to mp3, aac/m4a, and flac files.  This mechanism works well on Linux and MacOS, but may require some fixes to make work on Windows.</p><p>For aac access, it requires faad.  See <a href="http://www.audiocoding.com/">http://www.audiocoding.com/</a></p><p>For mp3 access, it requires mp3info and mpg123.  See <a href="http://www.mpg123.de/">http://www.mpg123.de/</a> and <a href="http://www.ibiblio.org/mp3info/">http://www.ibiblio.org/mp3info/</a></p><p>For flac access, it requires flac and metaflac.  See <a href="http://flac.sourceforge.net/">http://flac.sourceforge.net/</a></p><h2>Installation<a name="4"></a></h2><p>You can download a zip file containing audioread.m and the other files used in this demo from <a href="http://www.ee.columbia.edu/~dpwe/resources/matlab/audioread/audioread.zip">audioread.zip</a>.</p><p>By default, the latest version of audioread looks for binaries such as mpg123, faad, etc., using the "which" function provided by the shell.  If you do not have these tools installed centrally, you can put them in the same directory as the Matlab scripts.  You may need to edit the corresponding Matlab file (mp3read.m, m4aread.m, etc.) to make sure they are found.</p><p>Temporary files will be written to (a) a directory taken from the environment variable TMPDIR (b) /tmp if it exists, or (c) the current directory.  This can easily be changed by editing the .m files.</p><pre class="codeinput"><span class="comment">% Last updated: $Date: 2012/04/26 18:42:09 $</span>
+<span class="comment">% Dan Ellis &lt;dpwe@ee.columbia.edu&gt;</span>
+</pre><p class="footer"><br>
+      Published with MATLAB&reg; 7.11<br></p></div><!--
+##### SOURCE BEGIN #####
+%% audioread - unified Matlab audio file input function
+%
+% <audioread.m audioread> provides a single, unified Matlab function 
+% for reading audio files in a range of different file formats, 
+% including wav, mp3, aac, flac, AIFF, etc.  In most cases, access is 
+% actually provided by external binaries, but this is hidden 
+% within audioread (and its subfunctions).
+% The idea is to make your code independent of the kind of audio 
+% files used as input.
+%
+% In addition, audioread provides support for common modifications 
+% performed during sound input, namely resampling (changing the 
+% sampling rate), casting multi-channel signals to mono, and
+% loading only a limited time range of the sound.  Care has been 
+% taken to ensure that short subregions of very large soundfiles 
+% can be read with the minimum of memory overhead (for instance, 
+% without having to load in the entire soundfile at any time).
+
+%% Example usage
+% In its simplest form, audioread will load a soundfile into 
+% a vector in memory, just like wavread.  However, the same
+% function will also read an mp3 file, or an aac file, or any 
+% other supported soundfile type:
+
+% Read an audio waveform
+[d,sr] = audioread('piano.wav');
+% Plot the spectrogram
+subplot(311)
+specgram(d(:,1),1024,sr);
+% Read in a different format
+[d2,sr] = audioread('piano.mp3');
+subplot(312)
+specgram(d2(:,1),1024,sr);
+% Read with resampling, casting to mono, and time limits
+forcemono = 1;
+starttime = 0.5;  % seconds
+duration = 1.0;
+targetsr = 16000;
+[d3,sr] = audioread('piano.aac',targetsr,forcemono,starttime,duration);
+subplot(313)
+specgram(d3,512,sr);
+
+%% Writing audio files
+%
+% This package also includes <audiowrite.m audiowrite>, a function
+% to write out soundfiles in different formats, where the format is
+% guessed from the provided filename extension.  This is only a 
+% quick attempt, however, since there is no provision for
+% controlling the encoding performed by lossy formats (mp3 etc.).
+
+%% External binaries
+% audioread relies on external binaries for access to mp3, aac/m4a,
+% and flac files.  This mechanism works well on Linux and MacOS,
+% but may require some fixes to make work on Windows.
+%
+% For aac access, it requires faad.  See
+% http://www.audiocoding.com/
+%
+% For mp3 access, it requires mp3info and mpg123.  See 
+% http://www.mpg123.de/ and http://www.ibiblio.org/mp3info/
+%
+% For flac access, it requires flac and metaflac.  See
+% http://flac.sourceforge.net/
+
+%% Installation
+% You can download a zip file containing audioread.m and the other files
+% used in this demo from
+% <http://www.ee.columbia.edu/~dpwe/resources/matlab/audioread/audioread.zip audioread.zip>.
+%
+% By default, the latest version of audioread looks for binaries 
+% such as mpg123, faad, etc., using the "which" function provided 
+% by the shell.  If you do not have these tools installed
+% centrally, you can put them in the same directory as the Matlab 
+% scripts.  You may need to edit the corresponding Matlab file 
+% (mp3read.m, m4aread.m, etc.) to make sure they are found.
+%
+% Temporary files 
+% will be written to (a) a directory taken from the environment 
+% variable TMPDIR (b) /tmp if it exists, or (c) the current 
+% directory.  This can easily be changed by editing the .m files.
+
+% Last updated: $Date: 2012/04/26 18:42:09 $
+% Dan Ellis <dpwe@ee.columbia.edu>
+
+##### SOURCE END #####
+--></body></html>

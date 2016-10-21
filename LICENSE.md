@@ -1,0 +1,1 @@
+This code is distributed under the GNU General Public License, version 2.
